@@ -103,3 +103,215 @@ function drawStickFigure(el, x, y, facing) {
   }
 
 }
+
+/*Create a `drawLines` function which accepts a single parameter, a canvas
+ element, where it will draw two parallel lines. The first line should begin
+ at a point 100 pixels to the right of, the origin (i.e. 0,0) and 100 pixels
+ below it. It should be 400 pixels long. The second line should run parallel
+ to the first line, exactly 100 pixels below it. It should start at a point
+ 100 pixels from the edge of the canvas and be 200 pixels long.*/
+function drawLines(canvas){
+    const c = canvas.getContext("2d");
+    //const rect = canvas.getBoundingClientRect();
+    c.beginPath();
+    c.moveTo(100, 100);
+    c.lineTo(500, 100);
+    c.stroke();
+
+    c.beginPath();
+    c.moveTo(100, 200);
+    c.lineTo(300, 200);
+    c.stroke();
+}
+
+/*Create a function `drawTriangle` that takes seven parameters: a
+canvas element, and x1, y1, x2, y2, x3, y3. The function draws a red
+triangle, filled solid with green, between the three points given by
+the parameters.*/
+function drawTriangle(canvas, x1, y1, x2, y2, x3, y3){
+    const c = canvas.getContext("2d");
+    c.strokeStyle = "red";
+    c.fillStyle = "#00FF00";
+    c.beginPath();
+    c.moveTo(x1, y1);
+    c.lineTo(x2, y2);
+    c.lineTo(x3, y3);
+    c.lineTo(x1, y1);
+    c.fill();
+    c.stroke();
+}
+
+/*Write a drawGrid function that fills the canvas with a grid to
+make squares 50px big.*/
+function drawGrid(canvas){
+    const rect = canvas.getBoundingClientRect();
+    const c = canvas.getContext("2d");
+    c.beginPath();
+    for (let i = 0; i <= rect.width; i += 50){
+        c.moveTo(i, 0);
+        c.lineTo(i, rect.height);
+    }
+    for (let i = 0; i <= rect.height; i += 50){
+        c.moveTo(0, i);
+        c.lineTo(rect.width, i);
+    }
+    c.stroke();
+}
+
+/*Write a drawCzechFlag function to draw the Czech flag.*/
+function drawTriangle2(c, x1, y1, x2, y2, x3, y3){
+    c.beginPath();
+    c.moveTo(x1, y1);
+    c.lineTo(x2, y2);
+    c.lineTo(x3, y3);
+    c.lineTo(x1, y1);
+    c.fill();
+    c.stroke();
+}
+
+function drawCzechFlag(canvas){
+    const rect = canvas.getBoundingClientRect();
+    const w = rect.width;
+    const h = rect.height;
+    const c = canvas.getContext("2d");
+    c.strokeStyle = "#10457E";
+    c.fillStyle = "#10457E";
+    drawTriangle2(c,
+        0, 0,
+        w / 2, h / 2,
+        0, h);
+    c.strokeStyle = "#D71319";
+    c.fillStyle = "#D71319";
+    drawTriangle2(c,
+        0, h,
+        w / 2, h / 2,
+        w, h);
+    drawTriangle2(c,
+        w, h / 2,
+        w / 2, h / 2,
+        w, h);
+}
+
+/*Create a function `drawSpartacus` that takes one parameter, a canvas
+element. The function will draw the stick figure Spartacus on the provided
+canvas. Make sure he wields a sword in his hand. For convenience, index.js
+contains a function `drawStickFigure` that does most of the job, given a
+canvas element. Challenge: make him walk around.*/
+
+function drawSpartacus(canvas){
+    let raf;
+    let x = 100;
+    let y = 150;
+    let speed = 0.5;
+    let vx = speed;
+    let vy = speed;
+    let destx = 100;
+    let desty = 150;
+    let destAngle = 0;
+    let angle = 0;
+    const c = canvas.getContext("2d");
+
+    function drawLine(x1, y1, x2, y2){
+        c.beginPath();
+        c.moveTo(x1, y1);
+        c.lineTo(x2, y2);
+        c.stroke();
+    }
+
+    function drawSword(x, y){
+
+        c.strokeStyle = "grey";
+        // middle line
+        drawLine(x+15, y-40, x+70, y-96);
+
+        c.strokeStyle = "black";
+        // sides of the sword - right
+        drawLine(x+28, y-50, x+70, y-91);
+        // left
+        drawLine(x+24, y-53, x+65, y-96);
+
+        // end of the sword
+        drawLine(x+70, y-91, x+70, y-96);
+        drawLine(x+65, y-96, x+70, y-96);
+
+        c.lineWidth = 3;
+        // holder for the hand
+        drawLine(x+15, y-40, x+25, y-50);
+
+        // protector for hands
+        drawLine(x+20, y-56, x+30, y-46);
+    }
+
+    function rad(x) {
+      return x * Math.PI / 180;
+    }
+
+    function draw(){
+        c.clearRect(0, 0, canvas.width, canvas.height);
+        // calculate the angle which he is facing
+        angle = Math.abs(Math.atan(vy/vx)) * 180 / Math.PI;
+        if (vx <= 0){
+            if (vy <= 0){
+                angle += 180;
+            } else angle += 90;
+        } else if (vy < 0){
+            angle += 270;
+        }
+        animateSpartacus(angle);
+        x += vx;
+        y += vy;
+
+        // calculate new vx and vy
+
+        destAngle = Math.abs(Math.atan(desty - y / destx - x)) * 180 / Math.PI;
+
+        if (destx - x <= 0){
+            if (desty - y <= 0){
+                destAngle += 180;
+            } else destAngle += 90;
+        } else if (desty - y < 0){
+            destAngle += 270;
+        }
+
+        if (Math.abs(destx - x) <= 1){
+            vx = 0;
+        } else {
+            // vx = Math.cos(destAngle);
+            vx = destx > x ? speed : -speed;
+        }
+        if (Math.abs(desty - y) <= 1){
+            vy = 0;
+        } else {
+            // vy = Math.sin(destAngle);
+            vy = desty > y ? speed : -speed;
+        }
+        console.log("x: " + destx + ", y : " + desty + ", angle: " + angle + ", destAngle: " + destAngle);
+
+
+        raf = window.requestAnimationFrame(draw);
+    }
+
+    function animateSpartacus(facing){
+        drawStickFigure(canvas, x, y+50, facing);
+        drawSword(x, y+50);
+    }
+
+    canvas.addEventListener('mouseover', function(e) {
+        // start animation
+        raf = window.requestAnimationFrame(draw);
+    });
+
+    canvas.addEventListener('mousemove', function(e) {
+        // set new destination
+        const rect = canvas.getBoundingClientRect();
+        destx = (e.clientX - rect.left);
+        desty = (e.clientY - rect.top);
+    });
+
+    canvas.addEventListener('mouseout', function(e) {
+        window.cancelAnimationFrame(raf);
+    });
+
+    animateSpartacus(angle);
+
+}
